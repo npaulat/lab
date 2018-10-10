@@ -1,0 +1,89 @@
+import sys
+import os
+import argparse
+import subprocess
+import fnmatch
+import itertools
+
+# def get_args():
+	# #What this script does
+	# parser = argparse.ArgumentParser(description="General removal of most MELT duplicate calls and overlapping calls", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+	# required = parser.add_argument_group('required arguments')
+	# #Give input coordinate file of MELT hits (CHROM# + POS)
+	# parser.add_argument('-i', '--input', help='formatted MELT coordinate list to use as input file in the given directory', required=True)
+	# #Argument of directory containing the list of formatted MELT hits (need full path)
+	# parser.add_argument('-d', '--directory', type=str, help='Location of directory of the query scaffold files', required=True)
+	
+	# args = parser.parse_args()
+	# FASTQ = args.input
+	
+	return FASTQ
+	
+FASTQ = get_args()
+
+f = open("fixed_reads.fastq", w+)
+
+d = open(FASTQ)
+
+##
+##need 12 digit numerical name + "\t OP:i:1"
+##
+
+END = len(FASTQ)
+
+def my_range(START, END, STEP):
+	i = START
+	END = len(FASTQ)
+	while i <= END:
+		yield i
+		i += STEP
+
+#start at first line of file
+i = 0
+#start numbering for headers at 1
+number = 1
+
+for line in range(len(FASTQ)):
+	#if line index value is in the list of index values of every 8th line
+	if line in my_range(0, END, 7):
+		#check that the line starts with the "@" symbol
+		if line[1] == "@"*:
+			#replace that line with formatted header fpr 1/2 of pairs
+			f.append("@" + 12 digit number + "\t" + "OP:i:1")
+			i += 1
+			number += 1
+		#if "@" symbol not there, something is wrong, break off
+		else:
+			print("Did not find header line " + i + " as expected. Aborted.")
+			break
+	#if line index value is not on list, write out as is
+	else:
+		f.append(line)
+
+#when reach end i => len(index(list)) - 1
+#break
+
+
+move back up to 5th line
+
+i = 4
+number = 1
+
+for line in range(len(FASTQ)):
+	#if line index value is in the list of index values of every 8th line
+	if line in my_range(4, END, 7):
+		#check that the line starts with the "@" symbol
+		if line[1] == "@"*:
+			#replace that line with formatted header for 2/2 of pairs
+			f.append("@" + 12 digit number + "\t" + "OP:i:2")
+			i += 1
+			number += 1
+		#if "@" symbol not there, something is wrong, break off
+		else:
+			print("Did not find header line " + i + " as expected. Aborted.")
+			break
+	#if line index value is not on list, write out as is
+	else:
+		f.append(line)
+
+done
