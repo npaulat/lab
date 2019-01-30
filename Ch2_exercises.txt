@@ -1,0 +1,335 @@
+#Chapter 2 Exercises
+############
+##2.1
+print("______________________")
+C = -20
+dC = 5
+while C <= 40:
+	F = (9.0/5)*C + 32
+	print C, F
+	C = C + dC
+print("______________________")
+############
+##2.2
+print("______________________")
+C = -20
+dC = 5
+while C <= 40:
+	F = (9.0/5)*C + 32
+	Cv = (F-30.0)/2
+	print C, F, Cv
+	C = C + dC
+print("______________________")
+############
+##2.3
+primes = [2, 3, 5, 7, 11, 13]
+for number in primes:
+	print(number)
+p = 17
+primes.append(p)
+for number in primes:
+	print(number)
+############
+##2.4
+odds = []
+x = 1
+n = 50
+while x < n-1:
+	odds.append(x)
+	x += 2
+############
+##2.5
+sum = 0
+n = 5
+for value in range(1, n+1):
+	sum += value
+print(sum)
+
+sum = n(n + 1)/2
+print(sum)
+############
+##2.6
+me = 9.1094*10**-31
+e = 1.6022*10**-19
+eleperm = 8.8542*10**-12
+h = 6.6261*10**-34
+print("		Energy Level")
+print("______________________")
+while n in range(1, 21):
+	E = -1.0*((me*e**4)/((8*eleperm**2)*(h**2)))*(1/n**2)
+	print(E)
+print("______________________")
+print("\n	Change in Energy")
+print("	")
+print("______________________")
+levels = [1, 2, 3, 4, 5]
+while energy in range(1, levels):
+	i = levels[energy]
+	f = i + 1
+	changeE = -1.0*((me*e**4)/((8*eleperm**2)*(h**2)))*((1/(i**2)) - (1/(f**2)))
+	print(i + " to " + f + "\t\t" + changeE)
+print("______________________")
+############
+##2.7
+a = 5
+b = 20
+coord_list = []
+n = 10
+i = 0
+for n in range(1, n+1):
+	h = (b - a)/n
+	x = a + ih
+	coord_list.append(x)
+	i += 1
+for x in coord_list:
+	print(x)
+#or
+int_len_list = [(b-a)/n for x in range(1, n+1)]
+coord_list2 = [a + ih for h in int_len_list]
+############
+##2.8
+n = 10
+v0 = 2
+g = 9.8
+int_len_list =[(g-v0)/n for x in range(0, n+1)]
+#int_len_list =[(g-v0)/n for x in range(0, (2*v0/g)+1, n+1)]
+t_list = [v0 + ih for h in range(0, (2*v0/g)+1)]
+#y_list = [((v0*t) - 0.5*g*(t**2)) for t in t_list]
+
+while t in len(t_list):
+	y = (v0*t) - 0.5*g*(t**2)
+	print(t, y)
+	
+#or
+
+for t in t_list:
+	y = (v0*t) - 0.5*g*(t**2)
+	print(t, y)
+
+############
+##2.9
+n = 10
+v0 = 2
+g = 9.8
+int_len_list =[(g-v0)/n for x in range(0, n+1)]
+#int_len_list =[(g-v0)/n for x in range(0, (2*v0/g)+1, n+1)]
+t_list = [v0 + ih for h in range(0, (2*v0/g)+1)]
+y_list = [((v0*t) - 0.5*g*(t**2)) for t in t_list]
+
+for t, y in zip(t_list, y_list):
+	print("{}\t{}").format(t, y)
+
+############
+##2.10
+a = [1, 3, 5, 7, 11]
+b = [13, 17]
+c = a + b				#cat lists a and b
+print(c)				#print combined list of prime numbers
+b[0] = -1				#redefine first element of b as -1
+d = [e+1 for e in a]	#list comp; new list of [2, 4, 6, 8, 12]
+print(d)				#print new list as above
+d.append(b[0] + 1)		#add element 0 to d list
+d.append(b[-1] + 1)		#add list element of list b (17) to d list
+print d[-2:]			#print last 2 elements in d list
+for e1 in a:			#for element in list a
+	for e2 in b:		#for element in list b
+		print(e1 + e2)	#print sum of each "pair" of list elements
+
+############
+##2.11
+#Should give sum of 1/k for (1...M) where the step is 1
+s = 0; k = 1; M = 100
+while k < M:			#Should be M+1 or <=
+	s += 1/k			#without incrementing k, k is always 1, #continual summation of 1's
+print(s)				#and so the loop never ends, never prints s
+#corrected
+s = 0; k = 1; M = 100
+while k < M+1:
+	s += 1/k
+	k += 1
+print(s)
+
+############
+##2.12
+s = 0; k = 1; M = 100
+for k in range(0, M+1):
+	s += 1/k
+print(s)
+
+############
+##2.13
+initial_amount = 100
+p = 5.5					#interest rate
+amount = initial_amount
+years = 0
+while amount <= 1.5*initial_amount:
+	amount = amount + p/100*amount
+	years = years + 1
+print(years)
+##
+initial_amount = 100.0
+p = 5.0					#interest rate
+amount = initial_amount
+years = 0
+while amount <= 1.5*initial_amount:
+	amount += p/100*amount
+	years += 1
+print(years)
+
+############
+##2.14
+math.asin(x)
+
+############
+##2.15
+q = [['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h']]
+q[0][0]							index value of the first element in the first list in the list
+q[1]							index value of second list
+q[-1][-1]						index value of last list in list, and last element in list
+q[1][0]							#index value of the first element in the 2nd list in the list
+q[-1][-2]						#index value of the last list in the list, second-last element
+for i in q:						#i is a list in q list
+	for j in range(len(i)):		#j is an index value within list i
+		print{i[j])
+
+############
+##2.16
+print("______________________")
+C = -20
+dC = 5
+while C <= 40:
+	F = (9.0/5)*C + 32
+	Cv = (F-30.0)/2
+	print C, F, Cv
+	C = C + dC
+print("______________________")
+##
+print("{0:^22}\n______________________".format("Conversion Table"))
+C = -20
+dC = 5
+Cdegrees = [x for x in range(-20, 41, dC)]
+Cdegrees_dec = [i + 0.0 for i in Cdegrees]
+Fdegrees = [(9.0/5)*C + 32 for C in Cdegrees_dec]
+Capprox = [(F-30.0)/2 for F in F degrees]
+conversion = [[C, F, Capp] for C, F, Capp in zip(Cdegrees, Fdegrees, Capprox)]
+for degreetype in conversion:
+	 print("{0:>5}\t{1:>5}\t{2:>5}".format(degreetype[0], degreetype[1], degreetype[2]))
+print("______________________")
+
+
+############
+##2.17
+n = 10
+v0 = 2
+g = 9.8
+int_len_list =[(g-v0)/n for x in range(0, n+1)]
+#int_len_list =[(g-v0)/n for x in range(0, (2*v0/g)+1, n+1)]
+t_list = [v0 + ih for h in range(0, (2*v0/g)+1)]
+y_list = [((v0*t) - 0.5*g*(t**2)) for t in t_list]
+ty1 = [t_list, y_list]
+for list in ty1:
+	for t, y in list[0], list[1]:
+		print("{}\t{}".format(t, y)
+##or
+ty2 = [[t, y] for t, y in zip(t_list, y_list)]
+print("{}\t{}").format(t, y)
+
+############
+##2.18
+C = 41					#blank; accepted as true, initialized variable C to be defined as 41
+C == 40					#False; C is defined as 40; 41 does not = 40
+C != 40 and C < 41		#False; C != 40 is True, but 41 < 41 False, so statement is False
+C != 40 or C < 41		#True; as above, but since only one condition must be True, is True
+not C == 40 			#True; condition is that C is anything but 40
+not C > 40				#False; condition is that C is less than 40
+not False				#True; condition is True, since the string(?) exists, is True
+True and False			#False; can't be both at once
+False or True			#False; False = False, always fails OR conditional
+False or False or False	#False; False is always = False; so will never evaluate OR cond as True
+True and True and False	#False; can't be both, as False = False; condition not met; False
+False == 0				#True; equivalent to zero
+True == 0				#False; is equivalent to a non-zero integer
+True == 1				#True; makes sense to be equivalent to the first non-zero integer
+
+############
+##2.19
+from math import sqrt
+for n in range(1, 60):								#for every number 1 thru 59
+	r = 2.0											##define r as float 2
+	for i in range(n):								##for every number 0 to n
+		r = sqrt(r)									###define r as sqrt of r (redef n times)
+	for i in range(n):								##for every number 0 to n
+		r = r**2									###define r as r squared (redef n times)
+	print('%d times sqrt and **2 &.16f' % (n, r))	##print n and r of the iteration
+	
+#once the round off difference drops below 10^-16, the number is defined as 1.0, and remains that way
+
+############
+##2.20
+eps = 1.0						#define eps as float 1.0
+while 1.0 != 1.0 + eps:			#while 1.0 is not equal to 1.0 + eps
+	print("..........", eps)	#print dots, and value of eps for the iteration
+	eps = eps/2.0				#redefine eps as current eps value divided by 2
+print("Final eps:", eps)		#after loop, print what eps is now defined as
+##computer will evaluate truth of comparative values out to around 10^-16, once value difference is below that threshold, treats it as zero
+
+############
+##2.21
+a = 1/947.0*947
+b = 1
+if a != b:
+	print("Wrong result!")
+#
+a = 1/947.0*947
+b = 1
+tol = 0.0000000000000001
+if abs(a-b) < tol:
+	print("Wrong result!")
+
+############
+##2.22
+import 
+timet0 = time.time()
+while time.time() - t0 < 10:
+	print("....I like while loops!")
+	time.sleep(2)
+print("Oh, no - the loop is over.")
+#print statement in loop executed 0 times
+#change < to > in loop
+# print statement in loop is continuously executed between pauses, b/c time difference is always greater than 10
+
+############
+##2.23
+C = -60; dC = 2
+while C <= 60:
+	F = (9.0/5)*C + 32
+		print C, F
+C = C + dC
+##issues: print has extra indent, redefining C is outside of loop, loop will never end b/c C is always less than 60
+##fixed
+C = -60; dC = 2
+while C <= 60:
+	F = (9.0/5)*C + 32
+	print C, F
+	C = C + dC
+
+############
+##2.24
+x = 1		#assignment works as this is a complete statement, defines x as an integer, x = 1
+x = 1.		#works, defines x as a float object, x = 1.0
+x = 1;		#works, defines x as integer, x = 1
+x = 1!		#fails, invalid syntax
+x = 1?		#fails, invalid syntax
+x = 1:		#fails, invalid syntax
+x = 1,		#works, defines x as a tuple, x = (1,)
+
+############
+##2.25
+>>> numbers = range(10)							#define a list as being the integers 0 to 9
+>>> print(numbers)								#print the list
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>> for n in numbers:							#begin loop
+...		i = len(numbers)/2						#define i as the length of the list div by 2
+...		del numbers[i]							#delete the value with the index value of i
+...		print('n=%d, del %d' % (n, i), numbers)	#print the index value of n (really the iteration), the index value removed [i] (rounds down), and the current list
+#since index 4-7 do not exist by the time they are called, those index values are skipped
