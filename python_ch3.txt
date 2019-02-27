@@ -1,0 +1,178 @@
+#1. Generate list of element families
+print('TE family list')
+TE_FAMILIES = ["Copia", "hAt", "Gypsy", "Merlin", "L1", "PiggyBac", "RTE", "Mariner", "Jockey", "P"]
+print(TE_FAMILIES)
+
+#2. Print out only Class I superfamilies
+print('Class I superfamilies in list')
+SUPER_RETROS = TE_FAMILIES[0:10:2]
+print(SUPER_RETROS)
+
+#3. Print out only Class II superfamilies
+print('Class II superfamilies in list')
+SUPER_DNAS = TE_FAMILIES[1:10:2]
+print(SUPER_DNAS)
+
+#4. Print out all in a two column table
+print('Class I vs Class II list')
+TABLE = [[FAMILY1, FAMILY2] for FAMILY1, FAMILY2 in zip(SUPER_RETROS, SUPER_DNAS)]
+for SUPER_RETROS, SUPER_DNAS in TABLE:
+	print("%10s %10s" % (SUPER_RETROS, SUPER_DNAS))
+
+#5. Print out in same table, with headers
+print('Class I vs Class II list')
+CLASS_LIST = ["CLASS I", "CLASS II"]
+TES_BY_CLASS = CLASS_LIST + TE_FAMILIES
+print(TES_BY_CLASS)
+SUPER_RETROS = TES_BY_CLASS[0:12:2]
+SUPER_DNAS = TES_BY_CLASS[1:12:2]
+TABLE = [[FAMILY1, FAMILY2] for FAMILY1, FAMILY2 in zip(SUPER_RETROS, SUPER_DNAS)]
+for SUPER_RETROS, SUPER_DNAS in TABLE:
+	print("%10s %10s" % (SUPER_RETROS, SUPER_DNAS))
+
+#6. Add Helitron to list of superfamilies
+print('Add in Helitron superfamily')
+TE_FAMILIES.append("Helitron")
+print(len(TE_FAMILIES))
+
+#7. Print list alphabetically
+print('Print superfamilies alphabetically')
+print(sorted(TE_FAMILIES, key=str.lower))
+
+#8. Print names less than 6 characters long
+print('Print superfamilies with names shorter than 6 characters')
+def SHORT_NAMES(LIST):
+	SHORTS = []
+	for WORD in LIST:
+		if len(WORD) < 6:
+			SHORTS.append(WORD)
+		continue
+	return(SHORTS)
+
+print(SHORT_NAMES(TE_FAMILIES))
+
+#9 Print names between 3 and 6 characters long
+print('Short but not too short names')
+def NOT_TINY(LIST):
+	SMALLS = []
+	for WORD in LIST:
+		if len(WORD) >3 and len(WORD)<6:
+			SMALLS.append(WORD)
+		continue
+	return(SMALLS)
+	
+print(NOT_TINY(TE_FAMILIES))
+
+#10. Count how many superfamilies start with "M"
+print('How many "M" superfamilies?')
+COUNT = 0
+for WORD in TE_FAMILIES:
+	if WORD[0] == "M":
+		COUNT += 1
+print(COUNT)
+
+#11 Make a new list "A" that is 1, 2, 3, 4, 5, 6, 7, 8
+print("New list "A" is 1-8')
+A = [x for x in range(1,9)]
+print(A)
+
+#12 Using list A, print largest and smallest values in list
+print('Biggest and smallest values in "A"')
+print("Maximum value:", max(A))
+print("Minimum value:", min(A))
+
+
+#13 Print sum of list A
+print('Sum of list "A"')
+print("Sum:", sum(A))
+
+#14 Print odd numbers in list A
+print('Odd numbers of "A"')
+ODDS = [x for x in A if x % 2 == 1]
+print(ODDS)
+
+#15 Print even numbers in list A
+print('Even numbers of "A"')
+EVENS = [x for x in A if x % 2 == 0]
+print(EVENS)
+
+#16 Print the average of list A
+print('Mean value of list "A"')
+def MEAN(LIST):
+	return sum(LIST)/len(LIST)
+MEAN = MEAN(A)
+print(MEAN)
+
+#17 Multiple odd values in list A by 2 and print new list
+print('List "A" with odd values doubled')
+DOUBLED_ODDS = []
+for NUMBER in A:
+	if NUMBER % 2 == 1:
+		NUMBER = NUMBER * 2
+		DOUBLED_ODDS.append(NUMBER)
+	else:
+		DOUBLED_ODDS.append(NUMBER)
+print(DOUBLED_ODDS)
+
+#18 The new doubled-odds list, but with no duplicate values
+print('Remove duplicate values from this new list')
+#B = list(set(DOUBLED_ODDS))
+B = list(dict.fromkeys(DOUBLED_ODDS))
+print(B)
+
+#19 T/F, print True if at least one item in common in lists A and B
+print('True or False, there are shared values in lists A and B?')
+def SAME(LIST1, LIST2):
+	SHARED_VALUES = "False"
+	if set(LIST1).intersection(LIST2):
+				SHARED_VALUES = "True"
+				return SHARED_VALUES
+	return SHARED_VALUES
+print(SAME(A, B))
+#or just use bool(set(A).intersection(B))
+
+	
+#20 Print the number of times each item in list B can be divided by 2, store this as list C
+print("How many times is each number in list "B" divisible by 2?')
+def NUMBER_OF_HALVES(LIST):
+	C = []
+	for NUMBER in LIST:
+		COUNT = 0
+		NUM = float(NUMBER)
+		while str(NUM/2)[2] == '0':
+			COUNT += 1
+			NUM = NUM/2
+		C.append(COUNT)
+	return C
+
+print(NUMBER_OF_HALVES(B))
+
+#def HALF(LIST):
+#	C = []
+#	for NUMBER in LIST:
+#		print(str(NUMBER))
+#		COUNT = 0
+#		NUM = float(NUMBER)
+#		while str(NUM/2)[2] == '0':
+#			COUNT += 1
+#			NUM = NUM/2
+#			print(str(NUM))
+#			print(str(COUNT))
+#		print(str(COUNT))
+#		C.append(COUNT)
+#	return C
+#
+#print(HALF(B))
+
+print('Divide each value in list B by 2')
+def HALF(LIST):
+	C = []
+	for NUMBER in LIST:
+		C.append(int(NUMBER/2))
+	return C
+
+print(HALF(B))
+HALF(B)
+print(C)
+
+#or just do C = [x/2 for x in B]
