@@ -1,11 +1,13 @@
+import argparse
+import os
+import sys
+import re
+import subprocess
+import pandas as pd
 from Bio import SearchIO
 for Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
-import argparse
-import os
-import sys
-import pandas as pd
 
 
 def get_args():
@@ -45,7 +47,7 @@ GENOME, BLAST, CONSTES, BUFFER, SEQNUM, ALIGN = get_args()
 #organize_blast_hits(BLAST, BUFFER, SEQNUM);
 
 # Step 2: Creating ouput files with the consensus --------------------
-#create_te_out_files(CONSTEs);
+CREATE_TE_OUT_FILES(CONSENSUS_TES)
 
 # Step 3: Loading genome into memory----------------------------------
 
@@ -61,14 +63,17 @@ def REVTRANS(SEQ):
 	REVSEQ = SEQUENCE.reverse_complement()
 	return REVSEQ
 	
+def CREATE_TE_OUT_FILES(CONS_TES):
+	for SEQ_RECORD in SeqIO.parse(CONS_TES, "fasta"):
+		SEQ_ID = re.sub('#', '_', SEQ_RECORD.id)
+		SEQ_ID = re.sub('/', '_', SEQ_ID)
+		SEQ = SEQ_RECORD.Seq
+		OUTPUT = SEQ_ID + ".fas"
+		with open(OUTFILE, "w+") as OUTPUT:
+			#SeqIO.write(SEQ, OUTPUT, "fasta")
+			OUTPUT.write(">CONSENSUS-" + SEQ_ID + "\n" + SEQ + "\n")
+	
 #def ORGANIZE_BLAST_HITS(BLAST_HITS, SEQ_BUFFER, SEQ_NUM):
-	
-	
-	
-	
-	
-	
-#def CREATE_TE_OUT_FILES(CONSENSUS_TES):
 	
 	
 	
