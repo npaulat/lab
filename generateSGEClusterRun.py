@@ -141,3 +141,30 @@ else:
 	print("{} is not empty. Removing contents and continuing.").format(PARTITION_DIR)
 	os.remove(os.path.join(PARTITION_DIR, '*'))
 
+def get_batches():
+	# Return a 3-level list(ref): partitions -> chunks -> chunk properties (scaffold + coordinates)
+	PARTS = []
+	
+	## Open up the genome file and tabulate the sequence sizes
+	COMMAND = BIN + "/twoBitInfo " + GENOME_FASTA + " stdout |"
+	#open(P, $COMMAND)
+		#|| die "Couldn't open pipe ($COMMAND): $_\n"
+	TOTAL_SIZE = 0
+	SEQS = ()
+	#while (<P>) {
+	#	chomp;
+	#	my ($seq, $seqsize) = split("\t");
+	# ....
+	
+	if NUM_BATCHES > 0:
+		CHUNK_SIZE = int(TOTAL_SIZE / NUM_BATCHES) + 1
+		
+	BATCHES = ()
+	CURRENT_BATCH_SIZE = 0
+	for SEQ in SEQS:
+		SEQ_SIZE = SEQ_SIZES{SEQ}
+		SEQ_IDX = 0
+		while SEQ_SIZE > 0:
+
+
+
