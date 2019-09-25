@@ -35,6 +35,8 @@ def get_args():
 	#Argument of RepeatMasker run parameter
 	parser.add_argument('-lib', type=str, help='RepeatMasker run parameter custom library "-lib [filename]" option', required=False)
 	#Argument of RepeatMasker run parameter
+	parser.add_argument('-xsmall', type=str, help='Select a RepeatMasker masking option as lowercase bases [-xsmall], default is to mask as Ns', action='store_true')
+	#Argument of RepeatMasker run parameter
 	parser.add_argument('-engine', type=str, help='RepeatMasker run parameter "-engine <search_engine>" option; select a non-default search engine to use, otherwise RepeatMasker will used the default configured at install time; [crossmatch|abblast|rmblast|hmmer]', choices=['crossmatch', 'abblast', 'rmblast', 'hmmer'], required=False)
 	#Argument of RepeatMasker run parameter
 	parser.add_argument('-inv', type=str, help='RepeatMasker parameter flag "-inv" option; alignments are presented in the orientation of the repeat', action='store_true')
@@ -53,15 +55,16 @@ def get_args():
 	OUTDIR = args.outdir
 	QUEUE = args.queue
 	LIBRARY = args.lib
+	XSMALL = args.xsmall
 	ENGINE = args.engine
 	INV = args.inv
 	NOLOW = args.nolow
 	SPEED = args.speed
 	DIV = args.div
 	
-	return GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, ENGINE, INV, NOLOW, SPEED, DIV
+	return GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV
 	
-GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, ENGINE, INV, NOLOW, SPEED, DIV = get_args()
+GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV = get_args()
 
 # Sanity checks
 print("The species is {}, the query genome is {}.\n").format(SPECIES, GENOME)
@@ -75,11 +78,13 @@ if not SPECIES or LIBRARY:
 if SPECIES and LIBRARY:
 	sys.exit("Only supply a value for one option: 'species' or 'lib'! Not both!")
 
-FLAGS = [LIBRARY, ENGINE, INV, NOLOW, SPEED, DIV]
+FLAGS = [LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV]
 if not FLAGS:
 	print("All default RepeatMasker parameters were used, no custom library.")
 else:
 	print("Custom parameters used:\n")
+	if XSMALL:
+		print("-xsmall flag used.\n")
 	if INV:
 		print("-inv flag used.\n")
 	if NOLOW:
