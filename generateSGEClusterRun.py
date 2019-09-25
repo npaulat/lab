@@ -134,5 +134,5 @@ if not os.listdir(PARTITION_DIR):
 	print("{} is empty. Continuing.").format(PARTITION_DIR)
 else:
 	print("{} is not empty. Removing contents and continuing.").format(PARTITION_DIR)
-	os.remove(os.path.join(PARTITION_DIR, *)
+	os.remove(os.path.join(PARTITION_DIR, '*'))
 
