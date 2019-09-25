@@ -10,6 +10,11 @@ from Bio import Seq
 #import numpy as np
 #import pandas as pd
 
+# Where RepeatMasker is stored
+REPEATMASKER = "/lustre/work/daray/software/RepeatMasker"
+# Where this script can find liftUp, twoBitInfo and twoBitToFa
+BIN_DIR = "/lustre/work/daray/software"
+
 # Define arguments
 def get_args():
 	#What this script does
@@ -18,7 +23,7 @@ def get_args():
 	#Give input genome FASTA
 	parser.add_argument('-i', '--input', type=str, help='genome file in FASTA format', required=True)
 	#Argument of species name
-	parser.add_argument('-sp', '--species', type=str, help='Source species of query DNA FASTA', required=True)
+	parser.add_argument('-sp', '--species', type=str, help='Source species of query DNA FASTA', required=False)
 	# Desired batch number
 	parser.add_argument('-b', '--batch_count', type=int, help='Batch count', default=50)
 	# Input genome directory
@@ -64,6 +69,11 @@ print("{} batches will be made.\n").format(str(BATCH_COUNT))
 print("The genome FASTA is located in '{}'.\n").format(GENOME_DIR)
 print("The output directory is '{}'.\n").format(OUTDIR)
 print("The job queue is {}.\n").format(QUEUE)
+
+if not SPECIES or LIBRARY:
+	sys.exit("Must supply value for option 'species' or 'lib'!")
+if SPECIES and LIBRARY:
+	sys.exit("Only supply a value for one option: 'species' or 'lib'! Not both!")
 
 FLAGS = [LIBRARY, ENGINE, INV, NOLOW, SPEED, DIV]
 if not FLAGS:
@@ -112,3 +122,17 @@ except OSError as e:
 	
 if not os.path.isdir(OUTDIR):
 	sys.exit("The output directory '{}' does not exist.").format(OUTDIR)
+
+PARTITION_DIR = os.path.join(GENOME_DIR, "RMPart")
+
+SLOTS_PER_BATCH = 10
+MAX_DIR_SIZE = 1000
+NUM_BATCHES = BATCH_COUNT
+
+PARTITION_DIR = os.path.abspath(PARTITION_DIR)
+if not os.listdir(PARTITION_DIR):
+	print("{} is empty. Continuing.").format(PARTITION_DIR)
+else:
+	print("{} is not empty. Removing contents and continuing.").format(PARTITION_DIR)
+	os.remove(os.path.join(PARTITION_DIR, *)
+
