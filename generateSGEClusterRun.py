@@ -3,7 +3,13 @@ import os
 import argparse
 import itertools
 import subprocess
-import fnmatch
+from pyfaidx import Faidx
+import time
+import re
+import stat
+import shutil
+from shutil import copyfile
+import errno
 from Bio import SeqIO
 from Bio import SeqRecord
 from Bio import Seq
@@ -67,11 +73,11 @@ def get_args():
 GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV = get_args()
 
 # Sanity checks
-print("The species is {}, the query genome is {}.\n").format(SPECIES, GENOME)
-print("{} batches will be made.\n").format(str(BATCH_COUNT))
-print("The genome FASTA is located in '{}'.\n").format(GENOME_DIR)
-print("The output directory is '{}'.\n").format(OUTDIR)
-print("The job queue is {}.\n").format(QUEUE)
+print("The species is {}, the query genome is {}.\n".format(SPECIES, GENOME))
+print("{} batches will be made.\n".format(str(BATCH_COUNT)))
+print("The genome FASTA is located in '{}'.\n".format(GENOME_DIR))
+print("The output directory is '{}'.\n".format(OUTDIR))
+print("The job queue is {}.\n".format(QUEUE))
 
 if not SPECIES or LIBRARY:
 	sys.exit("Must supply value for option 'species' or 'lib'!")
@@ -90,17 +96,17 @@ else:
 	if NOLOW:
 		print("-nolow flag used.\n")
 	if LIBRARY:
-		print("-lib flag used. Custom library is '{}'.\n").format(os.path.basename(LIBRARY))
+		print("-lib flag used. Custom library is '{}'.\n".format(os.path.basename(LIBRARY)))
 	if ENGINE:
-		print("-engine flag used. Changed search engine to {}.\n").format(ENGINE)
+		print("-engine flag used. Changed search engine to {}.\n".format(ENGINE))
 	if SPEED:
-		print("-{} flag used. Search sensitivity has changed.\n").format(SPEED)
+		print("-{} flag used. Search sensitivity has changed.\n".format(SPEED))
 	if DIV:
-		print("-div flag used. RepeatMasker will mask only repeats that are less than {}% diverged from the consensus sequence.\n").format(str(DIV))
+		print("-div flag used. RepeatMasker will mask only repeats that are less than {}% diverged from the consensus sequence.\n".format(str(DIV)))
 
 
 if not os.path.isdir(GENOME_DIR):
-	sys.exit("The given genome directory, '{}', does not exist.").format(GENOME_DIR)
+	sys.exit("The given genome directory, '{}', does not exist.".format(GENOME_DIR))
 
 GENOME_FASTA = os.path.join(GENOME_DIR, GENOME)
 
@@ -115,18 +121,18 @@ GENOME_FASTA = os.path.join(GENOME_DIR, GENOME)
 
 try:
 	if not os.path.getsize(GENOME_FASTA) > 0:
-		sys.exit("The genome file, '{}', is empty.").format(GENOME_FASTA)
+		sys.exit("The genome file, '{}', is empty.".format(GENOME_FASTA))
 except OSError as e:
-	sys.exit("The genome file '{}' does not exist or is inaccessible.").format(GENOME_FASTA)
+	sys.exit("The genome file '{}' does not exist or is inaccessible.".format(GENOME_FASTA))
 	
 try:
 	if not os.path.getsize(LIBRARY) > 0:
-		sys.exit("The library file, '{}', is empty.").format(LIBRARY)
+		sys.exit("The library file, '{}', is empty.".format(LIBRARY))
 except OSError as e:
-	sys.exit("The library file '{}' does not exist or is inaccessible.").format(LIBRARY)
+	sys.exit("The library file '{}' does not exist or is inaccessible.".format(LIBRARY))
 	
 if not os.path.isdir(OUTDIR):
-	sys.exit("The output directory '{}' does not exist.").format(OUTDIR)
+	sys.exit("The output directory '{}' does not exist.".format(OUTDIR))
 
 PARTITION_DIR = os.path.join(GENOME_DIR, "RMPart")
 
@@ -134,37 +140,100 @@ SLOTS_PER_BATCH = 10
 MAX_DIR_SIZE = 1000
 NUM_BATCHES = BATCH_COUNT
 
-PARTITION_DIR = os.path.abspath(PARTITION_DIR)
-if not os.listdir(PARTITION_DIR):
-	print("{} is empty. Continuing.").format(PARTITION_DIR)
-else:
-	print("{} is not empty. Removing contents and continuing.").format(PARTITION_DIR)
-	os.remove(os.path.join(PARTITION_DIR, '*'))
+check_empty(PARTITION_DIR)
+# &checkEmpty($partitionDir);
 
-def get_batches():
+if LIBRARY:
+	copyfile(LIBRARY, PARTITION_DIR)
+	LIB_FILE = os.basename(LIBRARY).split(".")[0]
+	LIBRARY = os.path.join(PARTITION_DIR, LIB_FILE)
+# my $lib;
+# if ( exists $options{'lib'} )
+# {
+  # system("cp $options{'lib'} $partitionDir");
+  # my ( $vol, $dir, $file ) = File::Spec->splitpath( $options{'lib'} );
+  # $lib="$partitionDir/$file";
+# }
+
+simple_partition()
+build_DoLift()
+# &simplePartition();
+# &buildDoLift();
+
+# exit;
+
+
+############## FUNCTIONS #################
+
+#untested
+def check_empty(PARTITION_DIR):
+	PARTITION_DIR = os.path.abspath(PARTITION_DIR)
+	if not os.path.exists(PARTITION_DIR):
+		try:
+			os.mkdirs(PARTITION_DIR)
+		except OSError as e:
+			if e.errno != errno.EEXIST:
+				raise
+		print("Made '{}' directory.".format(PARTITION_DIR))
+	else:
+		if not os.listdir(PARTITION_DIR):
+			print("'{}' is empty. Continuing.".format(PARTITION_DIR))
+		else:
+			print("'{}' is not empty. Removing contents and continuing.".format(PARTITION_DIR))
+		#	os.remove(os.path.join(PARTITION_DIR, '*'))
+		## To remove anything in the RMPart folder from a previous run (all symbolic links (not expected here) and files and subdirectories) without deleting the RMPart directory itself
+			for FILE in os.listdir(PARTITION_DIR):
+				FILE_PATH = os.path.join(PARTITION_DIR, FILE)
+				try:
+					shutil.rmtree(FILE_PATH)
+				except OSError:
+					os.remove(FILE_PATH)
+
+#untested
+def get_batches(BATCH_NUM, GENOME_FASTA):
 	# Return a 3-level list(ref): partitions -> chunks -> chunk properties (scaffold + coordinates)
 	PARTS = []
 	
-	## Open up the genome file and tabulate the sequence sizes
-	COMMAND = BIN + "/twoBitInfo " + GENOME_FASTA + " stdout |"
-	#open(P, $COMMAND)
-		#|| die "Couldn't open pipe ($COMMAND): $_\n"
+	GENOME_NAME = os.basename(GENOME_FASTA).split(".")[0]
 	TOTAL_SIZE = 0
-	SEQS = ()
-	#while (<P>) {
-	#	chomp;
-	#	my ($seq, $seqsize) = split("\t");
-	# ....
+	SEQS = {}
+	
+	FAIDX = Faidx(GENOME_FASTA)
+	FASTA_IDX = open(GENOME_FASTA + ".fai")
+	
+	with open(FASTA_IDX) as FILE:
+		for LINE in FILE:
+			LINE = LINE.rstrip()
+			SEQ, SEQ_SIZE = LINE.split("\t")
+			TOTAL_SIZE += SEQ_SIZE
+			SEQS[SEQ] = SEQ_SIZE
 	
 	if NUM_BATCHES > 0:
 		CHUNK_SIZE = int(TOTAL_SIZE / NUM_BATCHES) + 1
 		
 	BATCHES = ()
 	CURRENT_BATCH_SIZE = 0
-	for SEQ in SEQS:
-		SEQ_SIZE = SEQ_SIZES{SEQ}
+	for SCAFFOLD in SEQS:
+		
+		SEQ_SIZE = int(SEQS[SCAFFOLD])
 		SEQ_IDX = 0
+		
 		while SEQ_SIZE > 0:
+			if (CURRENT_BATCH_SIZE + int(SEQ_SIZE)) > CHUNK_SIZE:
+				FILL_SIZE = CHUNK_SIZE - CURRENT_BATCH_SIZE
+				CHUNK_INFO = str(GENOME_NAME + ":" + SCAFFOLD + ":" + SEQ_IDX + "-" + SEQ_SIZE)
+				PARTS.append([SCAFFOLD, SEQ_SIZE, SEQ_IDX, FILL_SIZE, CHUNK_INFO])
+				SEQ_IDX += FILL_SIZE
+				SEQ_SIZE -= FILL_SIZE
+				CURRENT_BATCH_SIZE = 0
+			else:
+				CHUNK_INFO = str(GENOME_NAME + ":" + SCAFFOLD + ":" + SEQ_IDX + "-" + SEQ_SIZE)
+				PARTS.append([SCAFFOLD, SEQ_SIZE, SEQ_IDX, SEQ_SIZE, CHUNK_INFO]
+				CURRENT_BATCH_SIZE += SEQ_SIZE
+				SEQ_SIZE = 0
 
-
+	if PARTS:
+		BATCHES.append([PARTS])
+	
+	return BATCHES
 
