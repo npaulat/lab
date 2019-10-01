@@ -4,6 +4,7 @@ import argparse
 import itertools
 import subprocess
 from pyfaidx import Faidx
+from pyfaidx import Fasta
 import time
 import re
 import stat
@@ -73,7 +74,7 @@ def get_args():
 GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV = get_args()
 
 # Sanity checks
-print("The species is {}, the query genome is {}.\n".format(SPECIES, GENOME))
+print("The query genome is {}.\n".format(GENOME))
 print("{} batches will be made.\n".format(str(BATCH_COUNT)))
 print("The genome FASTA is located in '{}'.\n".format(GENOME_DIR))
 print("The output directory is '{}'.\n".format(OUTDIR))
@@ -103,7 +104,6 @@ else:
 		print("-{} flag used. Search sensitivity has changed.\n".format(SPEED))
 	if DIV:
 		print("-div flag used. RepeatMasker will mask only repeats that are less than {}% diverged from the consensus sequence.\n".format(str(DIV)))
-
 
 if not os.path.isdir(GENOME_DIR):
 	sys.exit("The given genome directory, '{}', does not exist.".format(GENOME_DIR))
@@ -145,7 +145,7 @@ check_empty(PARTITION_DIR)
 
 if LIBRARY:
 	copyfile(LIBRARY, PARTITION_DIR)
-	LIB_FILE = os.basename(LIBRARY).split(".")[0]
+	LIB_FILE = os.path.basename(LIBRARY)
 	LIBRARY = os.path.join(PARTITION_DIR, LIB_FILE)
 # my $lib;
 # if ( exists $options{'lib'} )
@@ -155,8 +155,8 @@ if LIBRARY:
   # $lib="$partitionDir/$file";
 # }
 
-simple_partition()
-build_DoLift()
+#simple_partition()
+#build_DoLift()
 # &simplePartition();
 # &buildDoLift();
 
@@ -165,7 +165,6 @@ build_DoLift()
 
 ############## FUNCTIONS #################
 
-#untested
 def check_empty(PARTITION_DIR):
 	PARTITION_DIR = os.path.abspath(PARTITION_DIR)
 	if not os.path.exists(PARTITION_DIR):
@@ -189,51 +188,52 @@ def check_empty(PARTITION_DIR):
 				except OSError:
 					os.remove(FILE_PATH)
 
-#untested
 def get_batches(BATCH_NUM, GENOME_FASTA):
 	# Return a 3-level list(ref): partitions -> chunks -> chunk properties (scaffold + coordinates)
 	PARTS = []
 	
-	GENOME_NAME = os.basename(GENOME_FASTA).split(".")[0]
+	GENOME_NAME = os.path.basename(GENOME_FASTA).split(".")[0]
 	TOTAL_SIZE = 0
 	SEQS = {}
 	
 	FAIDX = Faidx(GENOME_FASTA)
-	FASTA_IDX = open(GENOME_FASTA + ".fai")
+	FASTA_IDX = GENOME_FASTA + ".fai"
 	
 	with open(FASTA_IDX) as FILE:
 		for LINE in FILE:
 			LINE = LINE.rstrip()
-			SEQ, SEQ_SIZE = LINE.split("\t")
-			TOTAL_SIZE += SEQ_SIZE
-			SEQS[SEQ] = SEQ_SIZE
+			SEQ, SEQ_SIZE, JUNK = LINE.split("\t", 2)
+			TOTAL_SIZE += int(SEQ_SIZE)
+			SEQS[SEQ] = int(SEQ_SIZE)
 	
 	if NUM_BATCHES > 0:
 		CHUNK_SIZE = int(TOTAL_SIZE / NUM_BATCHES) + 1
 		
-	BATCHES = ()
+	BATCHES = []
 	CURRENT_BATCH_SIZE = 0
 	for SCAFFOLD in SEQS:
-		
-		SEQ_SIZE = int(SEQS[SCAFFOLD])
+		SEQ_SIZE = SEQS[SCAFFOLD]
 		SEQ_IDX = 0
 		
 		while SEQ_SIZE > 0:
-			if (CURRENT_BATCH_SIZE + int(SEQ_SIZE)) > CHUNK_SIZE:
+			if (CURRENT_BATCH_SIZE + SEQ_SIZE) > CHUNK_SIZE:
 				FILL_SIZE = CHUNK_SIZE - CURRENT_BATCH_SIZE
-				CHUNK_INFO = str(GENOME_NAME + ":" + SCAFFOLD + ":" + SEQ_IDX + "-" + SEQ_SIZE)
-				PARTS.append([SCAFFOLD, SEQ_SIZE, SEQ_IDX, FILL_SIZE, CHUNK_INFO])
+				CHUNK_INFO = str(GENOME_NAME + ":" + SCAFFOLD + ":" + str(SEQ_IDX) + "-" + str(SEQ_SIZE))
+				#NOTE: For scaffold size, always refer back to the index dict, not SEQ_SIZE,
+				# since SEQ_SIZE changes depending on if the whole scaffold was used in
+				# a single batch or not (as in the if statement of this loop)
+				PARTS.append([SCAFFOLD, SEQS[SCAFFOLD], SEQ_IDX, FILL_SIZE, CHUNK_INFO])
 				SEQ_IDX += FILL_SIZE
 				SEQ_SIZE -= FILL_SIZE
 				CURRENT_BATCH_SIZE = 0
 			else:
-				CHUNK_INFO = str(GENOME_NAME + ":" + SCAFFOLD + ":" + SEQ_IDX + "-" + SEQ_SIZE)
-				PARTS.append([SCAFFOLD, SEQ_SIZE, SEQ_IDX, SEQ_SIZE, CHUNK_INFO]
+				CHUNK_INFO = str(GENOME_NAME + ":" + SCAFFOLD + ":" + str(SEQ_IDX) + "-" + str(SEQ_SIZE))
+				PARTS.append([SCAFFOLD, SEQS[SCAFFOLD], SEQ_IDX, SEQ_SIZE, CHUNK_INFO])
 				CURRENT_BATCH_SIZE += SEQ_SIZE
 				SEQ_SIZE = 0
-
+	
+	#unclear if BATCHES will be in the appropriate hierarchy of lists/parts(elements) atm
 	if PARTS:
 		BATCHES.append([PARTS])
 	
 	return BATCHES
-
