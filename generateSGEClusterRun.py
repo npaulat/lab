@@ -169,7 +169,7 @@ def check_empty(PARTITION_DIR):
 	PARTITION_DIR = os.path.abspath(PARTITION_DIR)
 	if not os.path.exists(PARTITION_DIR):
 		try:
-			os.mkdirs(PARTITION_DIR)
+			os.mkdir(PARTITION_DIR)
 		except OSError as e:
 			if e.errno != errno.EEXIST:
 				raise
