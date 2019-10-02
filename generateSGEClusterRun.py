@@ -165,6 +165,7 @@ if LIBRARY:
 
 ############## FUNCTIONS #################
 
+# Subroutine (1)
 def check_empty(PARTITION_DIR):
 	PARTITION_DIR = os.path.abspath(PARTITION_DIR)
 	if not os.path.exists(PARTITION_DIR):
@@ -188,6 +189,7 @@ def check_empty(PARTITION_DIR):
 				except OSError:
 					os.remove(FILE_PATH)
 
+# Subroutine (2)
 def get_batches(BATCH_NUM, GENOME_FASTA):
 	# Return a 3-level list(ref): partitions -> chunks -> chunk properties (scaffold + coordinates)
 	PARTS = []
@@ -238,6 +240,7 @@ def get_batches(BATCH_NUM, GENOME_FASTA):
 	
 	return BATCHES
 
+# Subroutine (3)
 def part_path_from_num(PART_NUM, LEVELS):
 	# Given a partition ID number and number of levels in directory tree,
 	# determine its path and base filename.
@@ -246,8 +249,9 @@ def part_path_from_num(PART_NUM, LEVELS):
 	#Use this line if actually include that dumb loop below
 	#PATH = str('{:03d}'.format(LEAF_ID))
 	PATH = str('{:03d}/'.format(LEAF_ID))
-	## Genuinely don't know what the perl equiv of below is supposed to do,
-	## as w/n an RMPart dir, PATH folders are always 000 to n, no addnl nums on either side
+	## So the below loop should never come into play (as far as I can tell),
+	## because LEVELS should always = 1, so w/ i=1 i is never less than LEVELS (?????)
+	## w/n an RMPart dir, PATH folders are always 000 to n, no addnl nums on either side
 	#for i in range(1, LEVELS):
 	#i = 1
 	#while i < LEVELS:
@@ -256,7 +260,7 @@ def part_path_from_num(PART_NUM, LEVELS):
 		#i+= 1
 	#my partName = $path;
 	PART_NAME = PATH
-	#$partName =~ s@/@@g ## is telling it to replace "/" with nothing, globally????????
+	#$partName =~ s@/@@g ## is telling it to replace "/" with nothing, globally (90% sure)
 	#	var	match operator of must contain	s is strict or s is the start of s///g???
 	PART_NAME = PART_NAME.replace('/', '')
 	
