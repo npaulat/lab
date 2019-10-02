@@ -225,6 +225,8 @@ def get_batches(BATCH_NUM, GENOME_FASTA):
 				# since SEQ_SIZE changes depending on if the whole scaffold was used in
 				# a single batch or not (as in the if statement of this loop)
 				PARTS.append([SCAFFOLD, SEQS[SCAFFOLD], SEQ_IDX, FILL_SIZE, CHUNK_INFO])
+				BATCHES.append([PARTS])
+				PARTS = []
 				SEQ_IDX += FILL_SIZE
 				SEQ_SIZE -= FILL_SIZE
 				CURRENT_BATCH_SIZE = 0
