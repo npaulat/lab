@@ -237,3 +237,27 @@ def get_batches(BATCH_NUM, GENOME_FASTA):
 		BATCHES.append([PARTS])
 	
 	return BATCHES
+
+def part_path_from_num(PART_NUM, LEVELS):
+	# Given a partition ID number and number of levels in directory tree,
+	# determine its path and base filename.
+	LEAF_ID = PART_NUM % MAX_DIR_SIZE
+	PART_MOD = int(PART_NUM / MAX_DIR_SIZE)
+	#Use this line if actually include that dumb loop below
+	#PATH = str('{:03d}'.format(LEAF_ID))
+	PATH = str('{:03d}/'.format(LEAF_ID))
+	## Genuinely don't know what the perl equiv of below is supposed to do,
+	## as w/n an RMPart dir, PATH folders are always 000 to n, no addnl nums on either side
+	#for i in range(1, LEVELS):
+	#i = 1
+	#while i < LEVELS:
+		#PATH = PATH + str('{:03d}/'.format(PART_MOD % MAX_DIR_SIZE))
+		#PART_MOD = int(PART_MOD / MAX_DIR_SIZE)
+		#i+= 1
+	#my partName = $path;
+	PART_NAME = PATH
+	#$partName =~ s@/@@g ## is telling it to replace "/" with nothing, globally????????
+	#	var	match operator of must contain	s is strict or s is the start of s///g???
+	PART_NAME = PART_NAME.replace('/', '')
+	
+	return(PATH, PART_NAME)
