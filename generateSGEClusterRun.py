@@ -137,7 +137,6 @@ if not os.path.isdir(OUTDIR):
 PARTITION_DIR = os.path.join(GENOME_DIR, "RMPart")
 
 SLOTS_PER_BATCH = 10
-MAX_DIR_SIZE = 1000
 NUM_BATCHES = BATCH_COUNT
 
 check_empty(PARTITION_DIR)
@@ -190,10 +189,9 @@ def check_empty(PARTITION_DIR):
 					os.remove(FILE_PATH)
 
 # Subroutine (2)
-def get_batches(BATCH_NUM, GENOME_FASTA):
+def get_batches(NUM_BATCHES, GENOME_FASTA):
 	# Return a 3-level list(ref): partitions -> chunks -> chunk properties (scaffold + coordinates)
 	PARTS = []
-	
 	GENOME_NAME = os.path.basename(GENOME_FASTA).split(".")[0]
 	TOTAL_SIZE = 0
 	SEQS = {}
@@ -210,7 +208,7 @@ def get_batches(BATCH_NUM, GENOME_FASTA):
 	
 	if NUM_BATCHES > 0:
 		CHUNK_SIZE = int(TOTAL_SIZE / NUM_BATCHES) + 1
-		
+	
 	BATCHES = []
 	CURRENT_BATCH_SIZE = 0
 	for SCAFFOLD in SEQS:
@@ -235,15 +233,16 @@ def get_batches(BATCH_NUM, GENOME_FASTA):
 				PARTS.append([SCAFFOLD, SEQS[SCAFFOLD], SEQ_IDX, SEQ_SIZE, CHUNK_INFO])
 				CURRENT_BATCH_SIZE += SEQ_SIZE
 				SEQ_SIZE = 0
-	
 	#unclear if BATCHES will be in the appropriate hierarchy of lists/parts(elements) atm
+	# This bit must be outside of the for loop, otherwise each iteration thru the loop 
+	# will append the current PARTS list to BATCHES x# of scaffolds in the PARTS list
 	if PARTS:
 		BATCHES.append([PARTS])
 	
 	return BATCHES
-
 # Subroutine (3)
 def part_path_from_num(PART_NUM, LEVELS):
+	MAX_DIR_SIZE = 1000
 	# Given a partition ID number and number of levels in directory tree,
 	# determine its path and base filename.
 	LEAF_ID = PART_NUM % MAX_DIR_SIZE
@@ -252,7 +251,8 @@ def part_path_from_num(PART_NUM, LEVELS):
 	#PATH = str('{:03d}'.format(LEAF_ID))
 	PATH = str('{:03d}/'.format(LEAF_ID))
 	## So the below loop should never come into play (as far as I can tell),
-	## because LEVELS should always = 1, so w/ i=1 i is never less than LEVELS (?????)
+	## because LEVELS should always = 1, so w/ i=1 i is never less than LEVELS 
+	## (unless # BATCHES exceeds MAX_DIR_SIZE)
 	## w/n an RMPart dir, PATH folders are always 000 to n, no addnl nums on either side
 	#for i in range(1, LEVELS):
 	#i = 1
@@ -267,3 +267,40 @@ def part_path_from_num(PART_NUM, LEVELS):
 	PART_NAME = PART_NAME.replace('/', '')
 	
 	return(PATH, PART_NAME)
+
+# Subroutine (4)
+#partially tested, incomplete
+def simple_partition():
+	print("Generating list of batches...\n")
+	PARTS = get_batches(BATCH_COUNT, GENOME_FASTA)
+	NUM_PARTS = len(PARTS)
+	# Basically LEVELS always equals 1 until NUM_PARTS >= MAX_DIR_SIZE
+	MAX_DIR_SIZE = 1000
+	LEVELS = 1 + int(log(NUM_PARTS) / log(MAX_DIR_SIZE))
+	
+	TRAILING_SIZE = 0
+	MIN_SEQ_CNT = -1
+	MAX_SEQ_CNT = 0
+	for BATCH in PARTS:
+		SEQ_SIZE = 0
+		for SEQS in BATCH:
+			SEQ_CNT = 0
+			for SEQ in SEQS:
+				SEQ_CNT += 1
+				SEQ_SIZE += SEQ[3]
+			#print(SEQ_CNT)
+			if (MIN_SEQ_CNT < 0) or (MIN_SEQ_CNT > SEQ_CNT):
+				MIN_SEQ_CNT = SEQ_CNT
+			if (MAX_SEQ_CNT < SEQ_CNT):
+				MAX_SEQ_CNT = SEQ_CNT
+		if SEQ_SIZE != CHUNK_SIZE:
+			TRAILING_SIZE = SEQ_SIZE
+		#print(SEQ_SIZE)
+	print("Batch Stats:\n")
+	print("  - {} batches with between {} and {} sequences.".format(str(len(PARTS)), str(MIN_SEQ_CNT), str(MAX_SEQ_CNT)))
+	if TRAILING_SIZE:
+		print("  - {} batches with {} bp and one trailing batch with {} bp.".format(str(len(PARTS) - 1), str(CHUNK_SIZE), str(TRAILING_SIZE)))
+	else:
+		print("  - All batches contain exactly {} bp.".format(str(CHUNK_SIZE)))
+	
+	### UNTESTED BELOW THIS POINT ###
