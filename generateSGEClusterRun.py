@@ -90,7 +90,7 @@ if SPECIES and LIBRARY:
 #FLAGS = [LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV]
 FLAGS = [LIBRARY, XSMALL, NOLOW, SPEED]
 if not FLAGS:
-	print("All default RepeatMasker parameters were used, no custom library.")
+	print("Default RepeatMasker parameters used, no custom library, -inv -a -gff -pa options used.")
 else:
 	print("Custom parameters used:\n")
 	if XSMALL:
@@ -326,7 +326,8 @@ def simple_partition():
 		if XSMALL:
 			ADD_PARAMS = ADD_PARAMS + "-xsmall "
 		if SPEED:
-			ADD_PARAMS = ADD_PARAMS + "-" + str(SPEED) + " "	
+			ADD_PARAMS = ADD_PARAMS + "-" + str(SPEED) + " "
+		else: ADD_PARAMS = ADD_PARAMS + "-s "
 			
 		# Build SGE file
 		for BATCH in range(BATCH_COUNT):
@@ -358,6 +359,6 @@ def simple_partition():
 				BATCH_FILE.write('#$ -P ' + PROJECT + '\n')
 				BATCH_FILE.write('\n')
 				BATCH_FILE.write("cd {}\n\n".format(SGEBATCH_PATH))
-				BATCH_FILE.write("{}/RepeatMasker{}-inv -a -gff -s -pa {} {}.fa >& run.log\n".format(REPEATMASKER, ADD_PARAMS, str(PROC - 1), BATCH_NUMBER))
+				BATCH_FILE.write("{}/RepeatMasker{}-inv -a -gff -pa {} {}.fa >& run.log\n".format(REPEATMASKER, ADD_PARAMS, str(PROC - 1), BATCH_NUMBER))
 
 			QSUB.write("qsub {}\n".format(SGEBATCH)
