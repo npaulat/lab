@@ -43,16 +43,16 @@ def get_args():
 	parser.add_argument('-lib', type=str, help='RepeatMasker run parameter custom library "-lib [filename]" option', required=False)
 	#Argument of RepeatMasker run parameter
 	parser.add_argument('-xsmall', type=str, help='Select a RepeatMasker masking option as lowercase bases [-xsmall], default is to mask as Ns', action='store_true')
-	#Argument of RepeatMasker run parameter
-	parser.add_argument('-engine', type=str, help='RepeatMasker run parameter "-engine <search_engine>" option; select a non-default search engine to use, otherwise RepeatMasker will used the default configured at install time; [crossmatch|abblast|rmblast|hmmer]', choices=['crossmatch', 'abblast', 'rmblast', 'hmmer'], required=False)
-	#Argument of RepeatMasker run parameter
-	parser.add_argument('-inv', type=str, help='RepeatMasker parameter flag "-inv" option; alignments are presented in the orientation of the repeat', action='store_true')
-	#Argument of RepeatMasker run parameter
+#	#Argument of RepeatMasker run parameter
+#	parser.add_argument('-engine', type=str, help='RepeatMasker run parameter "-engine <search_engine>" option; select a non-default search engine to use, otherwise RepeatMasker will used the default configured at install time; [crossmatch|abblast|rmblast|hmmer]', choices=['crossmatch', 'abblast', 'rmblast', 'hmmer'], required=False)
+#	#Argument of RepeatMasker run parameter
+#	parser.add_argument('-inv', type=str, help='RepeatMasker parameter flag "-inv" option; alignments are presented in the orientation of the repeat', action='store_true')
+#	#Argument of RepeatMasker run parameter
 	parser.add_argument('-nolow', type=str, help='RepeatMasker parameter flag "-nolow" option; does not mask low complexity DNA or simple repeats', action='store_true')
 	#Argument of RepeatMasker run parameter
 	parser.add_argument('-s', '-speed', type=str, help='RepeatMasker run parameter "-q" or "-s" option; q=quick search; 5-10% less sensitive, 3-4 times faster than default; s=slow search; 0-5% more sensitive, 2.5 times slower than default', choices=['q', 's'], required=False)
-	#Argument of RepeatMasker run parameter
-	parser.add_argument('-div', type=int, help='RepeatMasker run parameter "-div [number]" option; masks only those repeats that are less than [number] percent diverged from the consensus sequence', required=False)
+#	#Argument of RepeatMasker run parameter
+#	parser.add_argument('-div', type=int, help='RepeatMasker run parameter "-div [number]" option; masks only those repeats that are less than [number] percent diverged from the consensus sequence', required=False)
 	
 	args = parser.parse_args()
 	GENOME = args.input
@@ -63,15 +63,17 @@ def get_args():
 	QUEUE = args.queue
 	LIBRARY = args.lib
 	XSMALL = args.xsmall
-	ENGINE = args.engine
-	INV = args.inv
+#	ENGINE = args.engine
+#	INV = args.inv
 	NOLOW = args.nolow
 	SPEED = args.speed
-	DIV = args.div
+#	DIV = args.div
 	
-	return GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV
+#	return GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV
+	return GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, NOLOW, SPEED
 	
-GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV = get_args()
+#GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV = get_args()
+GENOME, SPECIES, BATCH_COUNT, GENOME_DIR, OUTDIR, QUEUE, LIBRARY, XSMALL, NOLOW, SPEED = get_args()
 
 # Sanity checks
 print("The query genome is {}.\n".format(GENOME))
@@ -85,25 +87,26 @@ if not SPECIES or LIBRARY:
 if SPECIES and LIBRARY:
 	sys.exit("Only supply a value for one option: 'species' or 'lib'! Not both!")
 
-FLAGS = [LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV]
+#FLAGS = [LIBRARY, XSMALL, ENGINE, INV, NOLOW, SPEED, DIV]
+FLAGS = [LIBRARY, XSMALL, NOLOW, SPEED]
 if not FLAGS:
 	print("All default RepeatMasker parameters were used, no custom library.")
 else:
 	print("Custom parameters used:\n")
 	if XSMALL:
 		print("-xsmall flag used.\n")
-	if INV:
-		print("-inv flag used.\n")
+#	if INV:
+#		print("-inv flag used.\n")
 	if NOLOW:
 		print("-nolow flag used.\n")
 	if LIBRARY:
 		print("-lib flag used. Custom library is '{}'.\n".format(os.path.basename(LIBRARY)))
-	if ENGINE:
-		print("-engine flag used. Changed search engine to {}.\n".format(ENGINE))
+#	if ENGINE:
+#		print("-engine flag used. Changed search engine to {}.\n".format(ENGINE))
 	if SPEED:
 		print("-{} flag used. Search sensitivity has changed.\n".format(SPEED))
-	if DIV:
-		print("-div flag used. RepeatMasker will mask only repeats that are less than {}% diverged from the consensus sequence.\n".format(str(DIV)))
+#	if DIV:
+#		print("-div flag used. RepeatMasker will mask only repeats that are less than {}% diverged from the consensus sequence.\n".format(str(DIV)))
 
 if not os.path.isdir(GENOME_DIR):
 	sys.exit("The given genome directory, '{}', does not exist.".format(GENOME_DIR))
@@ -317,13 +320,13 @@ def simple_partition():
 		else:
 			LIB_OR_SPECIES = " -species " + SPECIES + " "
 		
-		ADD_PARAMS = LIB_OR_SPECIES + ""
+		ADD_PARAMS = str(LIB_OR_SPECIES)
 		if NOLOW:
-			ADD_PARAMS = ADD_PARAMS + " -nolow "
+			ADD_PARAMS = ADD_PARAMS + "-nolow "
 		if XSMALL:
-			ADD_PARAMS = ADD_PARAMS + " -xsmall "
+			ADD_PARAMS = ADD_PARAMS + "-xsmall "
 		if SPEED:
-			ADD_PARAMS = ADD_PARAMS + " -" + SPEED + " "	
+			ADD_PARAMS = ADD_PARAMS + "-" + str(SPEED) + " "	
 			
 		# Build SGE file
 		for BATCH in range(BATCH_COUNT):
@@ -355,6 +358,6 @@ def simple_partition():
 				BATCH_FILE.write('#$ -P ' + PROJECT + '\n')
 				BATCH_FILE.write('\n')
 				BATCH_FILE.write("cd {}\n\n".format(SGEBATCH_PATH))
-				BATCH_FILE.write("{}/RepeatMasker{}{}{}-a -gff -s -pa {} {}.fa >& run.log\n".format(REPEATMASKER, ADD_PARAMS, str(PROC - 1), BATCH_NUMBER))
+				BATCH_FILE.write("{}/RepeatMasker{}-inv -a -gff -s -pa {} {}.fa >& run.log\n".format(REPEATMASKER, ADD_PARAMS, str(PROC - 1), BATCH_NUMBER))
 
 			QSUB.write("qsub {}\n".format(SGEBATCH)
