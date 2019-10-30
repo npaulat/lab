@@ -361,4 +361,4 @@ def simple_partition():
 				BATCH_FILE.write("cd {}\n\n".format(SGEBATCH_PATH))
 				BATCH_FILE.write("{}/RepeatMasker{}-inv -a -gff -pa {} {}.fa >& run.log\n".format(REPEATMASKER, ADD_PARAMS, str(PROC - 1), BATCH_NUMBER))
 
-			QSUB.write("qsub {}\n".format(SGEBATCH)
+			#QSUB.write("qsub {}\n".format(SGEBATCH)
