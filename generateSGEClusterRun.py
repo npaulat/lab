@@ -304,3 +304,57 @@ def simple_partition():
 		print("  - All batches contain exactly {} bp.".format(str(CHUNK_SIZE)))
 	
 	### UNTESTED BELOW THIS POINT ###
+	
+	## Combining my and Dr. Ray's def for making the qsub files
+	
+	PREFIX == GENOME_NAME
+	SLOTS_PER_BATCH == PROC
+	
+	def generate_rmsubs(BATCH_COUNT, QUEUE, PREFIX, LIBRARY, SPECIES, XSMALL, NOLOW, SPEED, PROC):
+		LIB_OR_SPECIES = ""
+		if LIBRARY:
+			LIB_OR_SPECIES = " -lib " + LIBRARY + " "
+		else:
+			LIB_OR_SPECIES = " -species " + SPECIES + " "
+		
+		ADD_PARAMS = LIB_OR_SPECIES + ""
+		if NOLOW:
+			ADD_PARAMS = ADD_PARAMS + " -nolow "
+		if XSMALL:
+			ADD_PARAMS = ADD_PARAMS + " -xsmall "
+		if SPEED:
+			ADD_PARAMS = ADD_PARAMS + " -" + SPEED + " "	
+			
+		# Build SGE file
+		for BATCH in range(BATCH_COUNT):
+			BATCHNUMBER = '{:03}'.format(BATCH)
+			SGEBATCH_NAME = "batch-" + BATCH_NUMBER + ".sh"
+			SGEBATCH_PATH = os.path.join(PARTITION_DIR, PATH)
+			SGEBATCH = os.path.join(SGEBATCH_PATH, SGEBATCH_NAME)
+			
+			if QUEUE = 'hrothgar':
+				PROJECT = 'communitycluster'
+				KUE = 'Chewie'
+			elif QUEUE = 'quanah':
+				PROJECT = 'quanah'
+				KUE = 'omni'
+			else:
+				sys.exit('Please choose hrothgar or quanah as the queue to use.')
+				
+			with open(SGEBATCH) as BATCH_FILE:
+			#with open("RMPart/" + BATCH + "/" + QSUBFILENAME, 'w') as THISFILE:
+				BATCH_FILE.write("#!/bin/sh\n")
+				BATCH_FILE.write('#$ -V\n')
+				BATCH_FILE.write('#$ -cwd\n')
+				BATCH_FILE.write('#$ -S /bin/bash\n')
+				BATCH_FILE.write("#\$ -N {}-batch-{}\n".format(PREFIX, BATCH_NUMBER))
+				BATCH_FILE.write("#\$ -o \$JOB_NAME.o.\$JOB_ID\n")
+				BATCH_FILE.write("#\$ -e \$JOB_NAME.e.\$JOB_ID\n")
+				BATCH_FILE.write('#$ -q ' + KUE + '\n')
+				BATCH_FILE.write('#$ -pe sm {}\n'.format(str(PROC)))
+				BATCH_FILE.write('#$ -P ' + PROJECT + '\n')
+				BATCH_FILE.write('\n')
+				BATCH_FILE.write("cd {}\n\n".format(SGEBATCH_PATH))
+				BATCH_FILE.write("{}/RepeatMasker{}{}{}-a -gff -s -pa {} {}.fa >& run.log\n".format(REPEATMASKER, ADD_PARAMS, str(PROC - 1), BATCH_NUMBER))
+
+			QSUB.write("qsub {}\n".format(SGEBATCH)
